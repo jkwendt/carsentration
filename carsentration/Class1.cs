@@ -71,6 +71,14 @@ namespace carsentration
             clearedBitmap.UriSource = new Uri(String.Format("pack://application:,,/Images/cleared.png"));
             clearedBitmap.EndInit();
 
+            cellStates = new CellState[NUMBER_CELLS];
+
+            //Initializes a  cellStates array with default state
+            for (int i = 0; i < cellStates.Length; i++)
+            {
+
+                cellStates[i] = CellState.Hidden;
+            }
 
             //Loads Random images into Images array
             Random rand = new Random();
@@ -98,9 +106,11 @@ namespace carsentration
             //Initializes bitmapImages array with images
             for (int i = 0, k = 0 ; i < bitmapImages.Length; i++, k++)
             {
+                System.Console.WriteLine("le length" + imagesOrderIndices.Length);
                 if (k >= imagesOrderIndices.Length)
                 {
-                    //System.Console.Write(k +"\n");
+                    
+                    System.Console.Write(k +"\n");
                     k = 0;
                 }
                 bitmapImages[i] = new BitmapImage();
@@ -130,22 +140,20 @@ namespace carsentration
             images = new Image[NUMBER_CELLS];
 
             //Initializes a  images array with images
-            for (int i = 0, k = 0 ; i < images.Length; i++, k++)
+            for (int i = 0; i < images.Length; i++)
             {
 
                 images[i] = new Image();
                 images[i].Margin = new Thickness(5);
                 images[i].Stretch = System.Windows.Media.Stretch.None;
-                /*if (k >= imagesOrderIndices.Length)
-                {
-                    //System.Console.Write(k +"\n");
-                    k = 0;
-                }*/
+ 
                 //System.Console.Write(imagesOrderIndices[k] - 1+"\n");
                 images[i].Source = bitmapImages[i];
 
 
             }
+
+
 
                 //Adds Images to grid
             int n = 0;
@@ -155,19 +163,19 @@ namespace carsentration
                 for (int c = 1; c <= NCOLS; c++, n++)
                 {
                     
-                    Image image = new Image();
-                    image.Margin = new Thickness(5);
-                    image.Stretch = System.Windows.Media.Stretch.Uniform;
-                    image.Tag = n;
+                    //Image image = new Image();
+                    images[n].Margin = new Thickness(5);
+                    images[n].Stretch = System.Windows.Media.Stretch.Uniform;
+                    images[n].Tag = n;
 
 
-                    image.Source = hiddenBitmap;
+                    images[n].Source = hiddenBitmap;
 
                     // Add the image to the grid, specifying  its row and 
                     // column in the grid.
-                    grid.Children.Add(image);
-                    Grid.SetRow(image, r-1);
-                    Grid.SetColumn(image, c - 1);
+                    grid.Children.Add(images[n]);
+                    Grid.SetRow(images[n], r-1);
+                    Grid.SetColumn(images[n], c - 1);
                     //grid.MouseDown += new MouseButtonEventHandler
                     System.Console.WriteLine(n);
                 }
@@ -184,7 +192,7 @@ namespace carsentration
             this.SizeToContent = SizeToContent.WidthAndHeight;
             this.Content = grid;
             this.Title = "Image and Grid Example";
-            Application.Current.Properties["mde"] = ;
+           // Application.Current.Properties["mde"] = ;
            // this.ResizeMode = ResizeMode.NoResize;
 
             
@@ -196,41 +204,82 @@ namespace carsentration
         {
             //Image img = Application.Current.Properties["grd"] as Image;
             //img.Source = hiddenBitmap;
+            if(images[showingImageIndex1].Source.ToString().CompareTo(images[showingImageIndex2].Source.ToString()) == 0)
+            {
+                System.Console.WriteLine(images[showingImageIndex1].Source);
+                System.Console.WriteLine(images[showingImageIndex2].Source);
+                images[showingImageIndex1].Source = clearedBitmap;
+                images[showingImageIndex2].Source = clearedBitmap;
+                cellStates[showingImageIndex1] = CellState.Cleared;
+                cellStates[showingImageIndex2] = CellState.Cleared;
+                showingImageIndex1 = -1;
+                showingImageIndex2 = -1;
+                gameState = GameState.NoneShowing;
+                timer.Stop();
+                
+           }
+           else
+            {
+                images[showingImageIndex1].Source = hiddenBitmap;
+                images[showingImageIndex2].Source = hiddenBitmap;
+                cellStates[showingImageIndex1] = CellState.Hidden;
+                cellStates[showingImageIndex2] = CellState.Hidden;
+                showingImageIndex1 = -1;
+                showingImageIndex2 = -1;
+                gameState = GameState.NoneShowing;
+                timer.Stop();
+            }
+
 
         }
 
         // Event handler for the mouse
         void CarsentrationWindow_MouseDown(object sender, MouseButtonEventArgs e)
-        {   Image img = new Image();
+        {
             
-            img = (Image)e.OriginalSource;
-            int i = (int)img.Tag;
-            
-           // images[i] = 
-            img.Source = bitmapImages[i];
-            if(gameState == GameState.NoneShowing)
-            {
-                img.Source = bitmapImages[i];
-                //cellStates[i] = CellState.Showing;
-                gameState = GameState.OneShowing;
-                showingImageIndex1 = i;
-            }
-            else if(gameState == GameState.OneShowing)
-            {
-                img.Source = bitmapImages[i];
-                //cellStates[i] = CellState.Showing;
-                showingImageIndex2 = i;
-                gameState = GameState.TwoShowing;
-                timer.Start();
-            }
 
-            
-            System.Console.WriteLine(i);
+            try
+            {
+                Image img = new Image();
+                img = (Image)e.OriginalSource;
+
+
+                int i = (int)img.Tag;
+
+                // images[i] = 
+                //img.Source = bitmapImages[i];
+                if (gameState == GameState.NoneShowing)
+                {
+                    img.Source = bitmapImages[i];
+                    cellStates[i] = CellState.Showing;
+                    gameState = GameState.OneShowing;
+                    showingImageIndex1 = i;
+                    System.Console.WriteLine(images[showingImageIndex1].Source);
+                }
+                else if (gameState == GameState.OneShowing)
+                {
+                    img.Source = bitmapImages[i];
+                    cellStates[i] = CellState.Showing;
+                    showingImageIndex2 = i;
+                    gameState = GameState.TwoShowing;
+                    timer.Start();
+                    System.Console.WriteLine(showingImageIndex2 + " " + showingImageIndex1);
+                    System.Console.WriteLine(images[showingImageIndex2].Source);
+                }
+                System.Console.WriteLine(i);
+
+
+            }
+            catch
+            {
+             
+            }
+        }
 
 
 
     
-        }
+        
     }
 
 }
