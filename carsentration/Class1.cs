@@ -83,36 +83,19 @@ namespace carsentration
             }
 
             //Loads Random images into Images array
-            Random rand = new Random();
-            imagesOrderIndices = new int[DISTNTIMG];
 
-
-            for (int i = 0; i < imagesOrderIndices.Length; i++)
-            {
-                int rInt = rand.Next(0, DISTNTIMG + 1);
-
-                while (imagesOrderIndices.Contains(rInt))
-                {
-                    rand = new Random();
-                    rInt = rand.Next(0, DISTNTIMG + 1);
-
-                }
-                imagesOrderIndices[i] = rInt;
-                //System.Console.Write("Col:" + i + " : " + imagesOrderIndices[i] + "\n");
-
-            }
 
             //Insantiates bitmapImages array 
             bitmapImages = new BitmapImage[NUMBER_CELLS];
-
+            randomizer();
             //Initializes bitmapImages array with images
             for (int i = 0, k = 0 ; i < bitmapImages.Length; i++, k++)
             {
-                System.Console.WriteLine("le length" + imagesOrderIndices.Length);
+      
                 if (k >= imagesOrderIndices.Length)
                 {
-                    
-                    System.Console.Write(k +"\n");
+
+                    randomizer();
                     k = 0;
                 }
                 bitmapImages[i] = new BitmapImage();
@@ -149,7 +132,7 @@ namespace carsentration
                 images[i].Margin = new Thickness(5);
                 images[i].Stretch = System.Windows.Media.Stretch.None;
  
-                //System.Console.Write(imagesOrderIndices[k] - 1+"\n");
+                
                 images[i].Source = bitmapImages[i];
 
 
@@ -178,8 +161,6 @@ namespace carsentration
                     grid.Children.Add(images[n]);
                     Grid.SetRow(images[n], r-1);
                     Grid.SetColumn(images[n], c - 1);
-                    //grid.MouseDown += new MouseButtonEventHandler
-                    System.Console.WriteLine(n);
                 }
                 //System.Console.WriteLine(n);
             }
@@ -195,15 +176,30 @@ namespace carsentration
             this.SizeToContent = SizeToContent.WidthAndHeight;
             this.Content = grid;
             this.Title = "Image and Grid Example";
-           // Application.Current.Properties["mde"] = ;
-           // this.ResizeMode = ResizeMode.NoResize;
+
 
             
             
         }
         void randomizer()
         {
+            Random rand = new Random();
+            imagesOrderIndices = new int[DISTNTIMG];
 
+
+            for (int i = 0; i < imagesOrderIndices.Length; i++)
+            {
+                int rInt = rand.Next(0, DISTNTIMG + 1);
+
+                while (imagesOrderIndices.Contains(rInt))
+                {
+                    rand = new Random();
+                    rInt = rand.Next(0, DISTNTIMG + 1);
+
+                }
+                imagesOrderIndices[i] = rInt;
+
+            }
         }
         // Event handler for the timer
         void timer_Tick(object sender, EventArgs e)
@@ -212,8 +208,7 @@ namespace carsentration
             //img.Source = hiddenBitmap;
             if(images[showingImageIndex1].Source.ToString().CompareTo(images[showingImageIndex2].Source.ToString()) == 0)
             {
-                System.Console.WriteLine(images[showingImageIndex1].Source);
-                System.Console.WriteLine(images[showingImageIndex2].Source);
+
                 images[showingImageIndex1].Source = clearedBitmap;
                 images[showingImageIndex2].Source = clearedBitmap;
                 cellStates[showingImageIndex1] = CellState.Cleared;
@@ -223,17 +218,10 @@ namespace carsentration
                 gameState = GameState.NoneShowing;
                 numberHiddenCells -=2 ;
                 timer.Stop();
-                System.Console.WriteLine("LeHidden " + numberHiddenCells);
+               
                 if (numberHiddenCells == 0)
                 {
-                    /*Popup codePopup = new Popup();
-                    TextBlock popupText = new TextBlock();
-                    popupText.Text = "You Won!";
-                    popupText.Background = Brushes.LightBlue;
-                    popupText.Foreground = Brushes.Blue;
-                    codePopup.Child = popupText;
-                    codePopup.IsOpen = true;
-                    System.Console.WriteLine("popup");*/
+
                     System.Windows.Forms.MessageBox.Show("You Won!");
                     gameState = GameState.Over;
                 }
@@ -275,7 +263,7 @@ namespace carsentration
                     cellStates[i] = CellState.Showing;
                     gameState = GameState.OneShowing;
                     showingImageIndex1 = i;
-                    System.Console.WriteLine(images[showingImageIndex1].Source);
+                    
                 }
                 else if (gameState == GameState.OneShowing && cellStates[i] == CellState.Hidden)
                 {
@@ -284,10 +272,8 @@ namespace carsentration
                     showingImageIndex2 = i;
                     gameState = GameState.TwoShowing;
                     timer.Start();
-                    System.Console.WriteLine(showingImageIndex2 + " " + showingImageIndex1);
-                    System.Console.WriteLine(images[showingImageIndex2].Source);
+
                 }
-                System.Console.WriteLine(i);
 
 
             }
