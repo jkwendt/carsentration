@@ -5,10 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-
+using System.Windows.Forms;
 namespace carsentration
 {
     class Class1
@@ -16,7 +18,7 @@ namespace carsentration
         [STAThread]
         public static void Main()
         {
-            Application app = new Application();
+            System.Windows.Application app = new System.Windows.Application();
             app.Run(new CarsentrationWindow());
         }
     }
@@ -185,6 +187,7 @@ namespace carsentration
            
             // Handler for MouseEvent on images
             this.AddHandler(MouseDownEvent, new MouseButtonEventHandler(CarsentrationWindow_MouseDown));
+ 
             // Handler for timer
             this.timer.Interval = new TimeSpan(0, 0, 0, 2);
             this.timer.Tick += timer_Tick;
@@ -198,7 +201,10 @@ namespace carsentration
             
             
         }
+        void randomizer()
+        {
 
+        }
         // Event handler for the timer
         void timer_Tick(object sender, EventArgs e)
         {
@@ -215,7 +221,22 @@ namespace carsentration
                 showingImageIndex1 = -1;
                 showingImageIndex2 = -1;
                 gameState = GameState.NoneShowing;
+                numberHiddenCells -=2 ;
                 timer.Stop();
+                System.Console.WriteLine("LeHidden " + numberHiddenCells);
+                if (numberHiddenCells == 0)
+                {
+                    /*Popup codePopup = new Popup();
+                    TextBlock popupText = new TextBlock();
+                    popupText.Text = "You Won!";
+                    popupText.Background = Brushes.LightBlue;
+                    popupText.Foreground = Brushes.Blue;
+                    codePopup.Child = popupText;
+                    codePopup.IsOpen = true;
+                    System.Console.WriteLine("popup");*/
+                    System.Windows.Forms.MessageBox.Show("You Won!");
+                    gameState = GameState.Over;
+                }
                 
            }
            else
@@ -248,7 +269,7 @@ namespace carsentration
 
                 // images[i] = 
                 //img.Source = bitmapImages[i];
-                if (gameState == GameState.NoneShowing)
+                if (gameState == GameState.NoneShowing && cellStates[i] == CellState.Hidden)
                 {
                     img.Source = bitmapImages[i];
                     cellStates[i] = CellState.Showing;
@@ -256,7 +277,7 @@ namespace carsentration
                     showingImageIndex1 = i;
                     System.Console.WriteLine(images[showingImageIndex1].Source);
                 }
-                else if (gameState == GameState.OneShowing)
+                else if (gameState == GameState.OneShowing && cellStates[i] == CellState.Hidden)
                 {
                     img.Source = bitmapImages[i];
                     cellStates[i] = CellState.Showing;
