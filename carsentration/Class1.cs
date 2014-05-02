@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.UIElement;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
@@ -72,15 +71,41 @@ namespace carsentration
             clearedBitmap.UriSource = new Uri(String.Format("pack://application:,,/Images/cleared.png"));
             clearedBitmap.EndInit();
 
+
+            //Loads Random images into Images array
+            Random rand = new Random();
+            imagesOrderIndices = new int[DISTNTIMG];
+
+
+            for (int i = 0; i < imagesOrderIndices.Length; i++)
+            {
+                int rInt = rand.Next(0, DISTNTIMG + 1);
+
+                while (imagesOrderIndices.Contains(rInt))
+                {
+                    rand = new Random();
+                    rInt = rand.Next(0, DISTNTIMG + 1);
+
+                }
+                imagesOrderIndices[i] = rInt;
+                //System.Console.Write("Col:" + i + " : " + imagesOrderIndices[i] + "\n");
+
+            }
+
             //Insantiates bitmapImages array 
-            bitmapImages = new BitmapImage[DISTNTIMG];
+            bitmapImages = new BitmapImage[NUMBER_CELLS];
 
             //Initializes bitmapImages array with images
-            for (int i = 0; i < bitmapImages.Length; i++)
+            for (int i = 0, k = 0 ; i < bitmapImages.Length; i++, k++)
             {
+                if (k >= imagesOrderIndices.Length)
+                {
+                    //System.Console.Write(k +"\n");
+                    k = 0;
+                }
                 bitmapImages[i] = new BitmapImage();
                 bitmapImages[i].BeginInit();
-                bitmapImages[i].UriSource = new Uri(String.Format("pack://application:,,/Images/car{0}.png", i));
+                bitmapImages[i].UriSource = new Uri(String.Format("pack://application:,,/Images/car{0}.png", (imagesOrderIndices[k] - 1)));
                 bitmapImages[i].EndInit();
 
             }
@@ -101,26 +126,7 @@ namespace carsentration
                 
             }
 
-            //Loads Random images into Images array
-            Random rand = new Random();
-            imagesOrderIndices = new int[DISTNTIMG];
-
-           // int rInt = 0;
-       
-            for (int i = 0; i < imagesOrderIndices.Length; i++)
-            {
-                 int rInt = rand.Next(0, DISTNTIMG+1);
-                
-               while(imagesOrderIndices.Contains(rInt))
-                {
-                   rand = new Random();
-                   rInt = rand.Next(0, DISTNTIMG+1);
-                  
-                }
-               imagesOrderIndices[i] = rInt;
-               //System.Console.Write("Col:" + i + " : " + imagesOrderIndices[i] + "\n");
-
-            }
+//re analyze this and check if need to add this image array to grid
             images = new Image[NUMBER_CELLS];
 
             //Initializes a  images array with images
@@ -130,27 +136,31 @@ namespace carsentration
                 images[i] = new Image();
                 images[i].Margin = new Thickness(5);
                 images[i].Stretch = System.Windows.Media.Stretch.None;
-                if (k >= imagesOrderIndices.Length)
+                /*if (k >= imagesOrderIndices.Length)
                 {
                     //System.Console.Write(k +"\n");
                     k = 0;
-                }
+                }*/
                 //System.Console.Write(imagesOrderIndices[k] - 1+"\n");
-                images[i].Source = bitmapImages[imagesOrderIndices[k]-1];
+                images[i].Source = bitmapImages[i];
 
 
             }
 
                 //Adds Images to grid
+            int n = 0;
             for (int r = 1; r <= NROWS; r++)
             {
-                for (int c = 1; c <= NCOLS; c++)
+                //System.Console.WriteLine(n);
+                for (int c = 1; c <= NCOLS; c++, n++)
                 {
-
+                    
                     Image image = new Image();
                     image.Margin = new Thickness(5);
                     image.Stretch = System.Windows.Media.Stretch.Uniform;
-                    
+                    image.Tag = n;
+
+
                     image.Source = hiddenBitmap;
 
                     // Add the image to the grid, specifying  its row and 
@@ -159,10 +169,12 @@ namespace carsentration
                     Grid.SetRow(image, r-1);
                     Grid.SetColumn(image, c - 1);
                     //grid.MouseDown += new MouseButtonEventHandler
+                    System.Console.WriteLine(n);
                 }
+                //System.Console.WriteLine(n);
             }
 
-
+           
             // Handler for MouseEvent on images
             this.AddHandler(MouseDownEvent, new MouseButtonEventHandler(CarsentrationWindow_MouseDown));
             // Handler for timer
@@ -172,6 +184,7 @@ namespace carsentration
             this.SizeToContent = SizeToContent.WidthAndHeight;
             this.Content = grid;
             this.Title = "Image and Grid Example";
+            Application.Current.Properties["mde"] = ;
            // this.ResizeMode = ResizeMode.NoResize;
 
             
@@ -181,19 +194,42 @@ namespace carsentration
         // Event handler for the timer
         void timer_Tick(object sender, EventArgs e)
         {
-            
+            //Image img = Application.Current.Properties["grd"] as Image;
+            //img.Source = hiddenBitmap;
 
         }
 
         // Event handler for the mouse
         void CarsentrationWindow_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            e.GetPosition(Grid.);
+        {   Image img = new Image();
+            
+            img = (Image)e.OriginalSource;
+            int i = (int)img.Tag;
+            
+           // images[i] = 
+            img.Source = bitmapImages[i];
+            if(gameState == GameState.NoneShowing)
+            {
+                img.Source = bitmapImages[i];
+                //cellStates[i] = CellState.Showing;
+                gameState = GameState.OneShowing;
+                showingImageIndex1 = i;
+            }
+            else if(gameState == GameState.OneShowing)
+            {
+                img.Source = bitmapImages[i];
+                //cellStates[i] = CellState.Showing;
+                showingImageIndex2 = i;
+                gameState = GameState.TwoShowing;
+                timer.Start();
+            }
+
+            
+            System.Console.WriteLine(i);
 
 
-           
-           int row = Grid.GetRow(element);
-           System.Console.Write(row);
+
+    
         }
     }
 
